@@ -2,6 +2,49 @@ import pandas as pd
 import json
 
 
+def expenses_by_category():
+    """
+    Calculate expenses by category for the last three months.
+
+    Args:
+        transactions (pd.DataFrame): DataFrame with transaction data.
+        category (str): Category for which to calculate expenses.
+        date (str, optional): Reference date (default: None, uses current date).
+
+    Returns:
+        pd.DataFrame: DataFrame with calculated expenses.
+    """
+    # ваш код
+
+
+def expenses_by_day_of_week(date=None):
+    """
+    Calculate average expenses by day of the week for the last three months.
+
+    Args:
+        transactions (pd.DataFrame): DataFrame with transaction data.
+        date (str, optional): Reference date (default: None, uses current date).
+
+    Returns:
+        pd.DataFrame: DataFrame with calculated average expenses by day of the week.
+    """
+    # ваш код
+
+
+def expenses_by_workday_weekend(transactions, date=None):
+    """
+    Calculate average expenses for workdays and weekends for the last three months.
+
+    Args:
+        transactions (pd.DataFrame): DataFrame with transaction data.
+        date (str, optional): Reference date (default: None, uses current date).
+
+    Returns:
+        pd.DataFrame: DataFrame with calculated average expenses for workdays and weekends.
+    """
+    # ваш код
+
+
 def expenses_by_category(data, year, month):
     """
     Фильтрует данные за указанный месяц и год и возвращает суммы расходов по категориям.
@@ -15,7 +58,7 @@ def expenses_by_category(data, year, month):
     filtered_data = data[
         (data["Дата операции"].dt.year == year)
         & (data["Дата операции"].dt.month == month)
-    ]
+        ]
 
     expenses_by_category = (
         filtered_data.groupby("Категория")["Сумма платежа"].sum().reset_index()
@@ -37,7 +80,7 @@ def expenses_by_day_of_week(data, year, month):
     filtered_data = data[
         (data["Дата операции"].dt.year == year)
         & (data["Дата операции"].dt.month == month)
-    ]
+        ]
 
     expenses_by_day_of_week = (
         filtered_data.groupby(filtered_data["Дата операции"].dt.dayofweek)[
@@ -65,7 +108,7 @@ def expenses_by_workday_weekend(data, year, month):
     filtered_data = data[
         (data["Дата операции"].dt.year == year)
         & (data["Дата операции"].dt.month == month)
-    ]
+        ]
 
     filtered_data["Рабочий день"] = filtered_data["Дата операции"].dt.dayofweek < 5
     expenses_by_workday_weekend = (
@@ -94,7 +137,7 @@ def expenses_by_hour(data, year, month):
     filtered_data = data[
         (data["Дата операции"].dt.year == year)
         & (data["Дата операции"].dt.month == month)
-    ]
+        ]
 
     expenses_by_hour = (
         filtered_data.groupby(filtered_data["Дата операции"].dt.hour)["Сумма платежа"]

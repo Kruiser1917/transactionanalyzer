@@ -3,6 +3,35 @@ from datetime import datetime
 import json
 
 
+def main_page():
+    """
+    Generate JSON response for the main page.
+
+    Args:
+        data (pd.DataFrame): DataFrame with transaction data.
+        current_time_str (str): Current date and time as a string.
+
+    Returns:
+        str: JSON response.
+    """
+    # ваш код
+
+
+def events_page(current_time_str, period='M'):
+    """
+    Generate JSON response for the events page.
+
+    Args:
+        data (pd.DataFrame): DataFrame with transaction data.
+        current_time_str (str): Current date and time as a string.
+        period (str): Period for analysis (default 'M' for month).
+
+    Returns:
+        str: JSON response.
+    """
+    # ваш код
+
+
 def get_greeting(current_time):
     hour = current_time.hour
     if 5 <= hour < 12:
@@ -86,7 +115,7 @@ def events_page(data, current_time_str, period="M"):
 
     period_data = data[
         (data["Дата операции"] >= start_date) & (data["Дата операции"] <= current_time)
-    ]
+        ]
 
     expenses_total = period_data["Сумма платежа"].sum()
     income_total = period_data["Сумма операции"].sum()

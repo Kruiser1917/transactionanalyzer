@@ -29,6 +29,21 @@ def load_data(file_path):
 
 
 def main():
+    """
+    Main function to handle different actions for transaction analysis.
+
+    Parses command line arguments and executes the corresponding action.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    # ваш код
+
+
+def main():
     parser = argparse.ArgumentParser(description="Transaction Analysis Tool")
     parser.add_argument(
         "--file",
@@ -66,14 +81,14 @@ def main():
 
     if args.action == "main_page":
         current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        result = main_page(data, current_time_str)
+        result = main_page()
     elif args.action == "events_page":
         current_time_str = datetime.now().strftime("%Y-%m-%d")
-        result = events_page(data, current_time_str, period="M")
+        result = events_page(current_time_str, period="M")
     elif args.action == "expenses_by_category":
-        result = expenses_by_category(data, args.year, args.month)
+        result = expenses_by_category()
     elif args.action == "expenses_by_day_of_week":
-        result = expenses_by_day_of_week(data, args.year, args.month)
+        result = expenses_by_day_of_week(args.year, args.month)
     elif args.action == "expenses_by_workday_weekend":
         result = expenses_by_workday_weekend(data, args.year, args.month)
     elif args.action == "expenses_by_hour":

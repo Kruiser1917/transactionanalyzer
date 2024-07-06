@@ -37,7 +37,7 @@ def sample_data():
 
 def test_main_page(sample_data):
     current_time_str = "2021-12-31 16:00:00"
-    response = main_page(sample_data, current_time_str)
+    response = main_page()
 
     assert "greeting" in response
     assert "cards" in response
@@ -56,7 +56,7 @@ def test_main_page(sample_data):
 
 def test_events_page(sample_data):
     current_time_str = "2021-12-31"
-    response = events_page(sample_data, current_time_str, period="M")
+    response = events_page(current_time_str, period="M")
 
     assert "expenses" in response
     assert "income" in response

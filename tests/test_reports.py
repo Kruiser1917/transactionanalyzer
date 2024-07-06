@@ -33,7 +33,7 @@ def sample_data():
 def test_expenses_by_category(sample_data):
     year = 2021
     month = 12
-    response = expenses_by_category(sample_data, year, month)
+    response = expenses_by_category()
 
     response_dict = json.loads(response)
 
@@ -45,7 +45,7 @@ def test_expenses_by_category(sample_data):
 def test_expenses_by_day_of_week(sample_data):
     year = 2021
     month = 12
-    response = expenses_by_day_of_week(sample_data, year, month)
+    response = expenses_by_day_of_week(year, month)
 
     response_dict = json.loads(response)
 
