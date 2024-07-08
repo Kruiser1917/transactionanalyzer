@@ -1,5 +1,6 @@
-import pandas as pd
 from datetime import datetime
+
+import pandas as pd
 
 
 def get_greeting(current_time: datetime) -> str:
@@ -88,7 +89,8 @@ def analyze_transactions(data: pd.DataFrame, date: datetime, period: str) -> tup
     main_expenses = expenses.groupby('Категория').agg({'Сумма платежа': 'sum'}).reset_index()
     main_expenses = main_expenses.nlargest(7, 'Сумма платежа')
     other_expenses = expenses[~expenses['Категория'].isin(main_expenses['Категория'])]['Сумма платежа'].sum()
-    main_expenses = main_expenses.append({'Категория': 'Остальное', 'Сумма платежа': other_expenses}, ignore_index=True)
+    main_expenses = main_expenses.append({'Категория': 'Остальное', 'Сумма платежа': other_expenses},
+                                         ignore_index=True)
 
     transfers_and_cash = expenses[expenses['Категория'].isin(['Наличные', 'Переводы'])].copy()
 
