@@ -1,148 +1,134 @@
-import pandas as pd
 import json
+import pandas as pd
+from datetime import datetime, timedelta
+import logging
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-def expenses_by_category():
+def expenses_by_category(data: pd.DataFrame, category: str, date: str = None) -> str:
     """
-    Calculate expenses by category for the last three months.
+    Calculate expenses by category for the last three months from the given date.
 
     Args:
-        transactions (pd.DataFrame): DataFrame with transaction data.
-        category (str): Category for which to calculate expenses.
-        date (str, optional): Reference date (default: None, uses current date).
+        data (pd.DataFrame): The transaction data.
+        category (str): The category to filter.
+        date (str): The end date for the three-month period (format 'YYYY-MM-DD'). Defaults to current date.
 
     Returns:
-        pd.DataFrame: DataFrame with calculated expenses.
+        str: A JSON string with the total expenses by category for the specified period.
     """
-    # ваш код
+    if date is None:
+        date = datetime.now().strftime('%Y-%m-%d')
+    end_date = datetime.strptime(date, '%Y-%m-%d')
+    start_date = end_date - timedelta(days=90)
 
+    logger.info(f"Calculating expenses for category '{category}' from {start_date.date()} to {end_date.date()}")
 
-def expenses_by_day_of_week(date=None):
-    """
-    Calculate average expenses by day of the week for the last three months.
-
-    Args:
-        transactions (pd.DataFrame): DataFrame with transaction data.
-        date (str, optional): Reference date (default: None, uses current date).
-
-    Returns:
-        pd.DataFrame: DataFrame with calculated average expenses by day of the week.
-    """
-    # ваш код
-
-
-def expenses_by_workday_weekend(transactions, date=None):
-    """
-    Calculate average expenses for workdays and weekends for the last three months.
-
-    Args:
-        transactions (pd.DataFrame): DataFrame with transaction data.
-        date (str, optional): Reference date (default: None, uses current date).
-
-    Returns:
-        pd.DataFrame: DataFrame with calculated average expenses for workdays and weekends.
-    """
-    # ваш код
-
-
-def expenses_by_category(data, year, month):
-    """
-    Фильтрует данные за указанный месяц и год и возвращает суммы расходов по категориям.
-
-    :param data: DataFrame с данными транзакций
-    :param year: Год для фильтрации данных
-    :param month: Месяц для фильтрации данных
-    :return: JSON строка с суммами расходов по категориям
-    """
-    data["Дата операции"] = pd.to_datetime(data["Дата операции"])
     filtered_data = data[
-        (data["Дата операции"].dt.year == year)
-        & (data["Дата операции"].dt.month == month)
-        ]
+        (data['Дата операции'] >= start_date) & (data['Дата операции'] <= end_date) & (data['Категория'] == category)]
+    total_expenses = filtered_data['Сумма платежа'].sum()
 
-    expenses_by_category = (
-        filtered_data.groupby("Категория")["Сумма платежа"].sum().reset_index()
-    )
-    result = expenses_by_category.set_index("Категория")["Сумма платежа"].to_dict()
+    result = {
+        "category": category,
+        "start_date": start_date.strftime('%Y-%m-%d'),
+        "end_date": end_date.strftime('%Y-%m-%d'),
+        "total_expenses": total_expenses
+    }
+
+    logger.info(
+        f"Total expenses for category '{category}' from {start_date.date()} to {end_date.date()}: {total_expenses}")
+
     return json.dumps(result, ensure_ascii=False, indent=4)
 
 
-def expenses_by_day_of_week(data, year, month):
+def expenses_by_day_of_week(data: pd.DataFrame, year: int, month: int) -> str:
     """
-    Фильтрует данные за указанный месяц и год и возвращает суммы расходов по дням недели.
+    Calculate expenses by day of the week for the given month and year.
 
-    :param data: DataFrame с данными транзакций
-    :param year: Год для фильтрации данных
-    :param month: Месяц для фильтрации данных
-    :return: JSON строка с суммами расходов по дням недели
+    Args:
+        data (pd.DataFrame): The transaction data.
+        year (int): The year for analysis.
+        month (int): The month for analysis.
+
+    Returns:
+        str: A JSON string with the total expenses by day of the week.
     """
-    data["Дата операции"] = pd.to_datetime(data["Дата операции"])
-    filtered_data = data[
-        (data["Дата операции"].dt.year == year)
-        & (data["Дата операции"].dt.month == month)
-        ]
+    logger.info(f"Calculating expenses by day of the week for {year}-{month:02d}")
 
-    expenses_by_day_of_week = (
-        filtered_data.groupby(filtered_data["Дата операции"].dt.dayofweek)[
-            "Сумма платежа"
-        ]
-        .sum()
-        .reset_index()
-    )
-    result = expenses_by_day_of_week.set_index("Дата операции")[
-        "Сумма платежа"
-    ].to_dict()
+    filtered_data = data[(data['Дата операции'].dt.year == year) & (data['Дата операции'].dt.month == month)]
+    filtered_data['day_of_week'] = filtered_data['Дата операции'].dt.dayofweek
+    expenses_by_day = filtered_data.groupby('day_of_week')['Сумма платежа'].sum().to_dict()
+
+    result = {
+        "year": year,
+        "month": month,
+        "expenses_by_day_of_week": expenses_by_day
+    }
+
+    logger.info(f"Expenses by day of the week for {year}-{month:02d}: {expenses_by_day}")
+
     return json.dumps(result, ensure_ascii=False, indent=4)
 
 
-def expenses_by_workday_weekend(data, year, month):
+def expenses_by_workday_weekend(data: pd.DataFrame, year: int, month: int) -> str:
     """
-    Фильтрует данные за указанный месяц и год и возвращает суммы расходов по рабочим и выходным дням.
+    Calculate expenses by workday and weekend for the given month and year.
 
-    :param data: DataFrame с данными транзакций
-    :param year: Год для фильтрации данных
-    :param month: Месяц для фильтрации данных
-    :return: JSON строка с суммами расходов по рабочим и выходным дням
+    Args:
+        data (pd.DataFrame): The transaction data.
+        year (int): The year for analysis.
+        month (int): The month for analysis.
+
+    Returns:
+        str: A JSON string with the total expenses by workday and weekend.
     """
-    data["Дата операции"] = pd.to_datetime(data["Дата операции"])
-    filtered_data = data[
-        (data["Дата операции"].dt.year == year)
-        & (data["Дата операции"].dt.month == month)
-        ]
+    logger.info(f"Calculating expenses by workday and weekend for {year}-{month:02d}")
 
-    filtered_data["Рабочий день"] = filtered_data["Дата операции"].dt.dayofweek < 5
-    expenses_by_workday_weekend = (
-        filtered_data.groupby("Рабочий день")["Сумма платежа"].sum().reset_index()
-    )
-    expenses_by_workday_weekend["Рабочий день"] = expenses_by_workday_weekend[
-        "Рабочий день"
-    ].map({True: "Рабочий день", False: "Выходной день"})
+    filtered_data = data[(data['Дата операции'].dt.year == year) & (data['Дата операции'].dt.month == month)]
+    filtered_data['is_workday'] = filtered_data['Дата операции'].dt.dayofweek < 5
+    workday_expenses = filtered_data[filtered_data['is_workday']]['Сумма платежа'].sum()
+    weekend_expenses = filtered_data[~filtered_data['is_workday']]['Сумма платежа'].sum()
 
-    result = expenses_by_workday_weekend.set_index("Рабочий день")[
-        "Сумма платежа"
-    ].to_dict()
+    result = {
+        "year": year,
+        "month": month,
+        "workday_expenses": workday_expenses,
+        "weekend_expenses": weekend_expenses
+    }
+
+    logger.info(
+        f"Expenses by workday and weekend for {year}-{month:02d}: workday={workday_expenses}, weekend={weekend_expenses}")
+
     return json.dumps(result, ensure_ascii=False, indent=4)
 
 
-def expenses_by_hour(data, year, month):
+def expenses_by_hour(data: pd.DataFrame, year: int, month: int) -> str:
     """
-    Фильтрует данные за указанный месяц и год и возвращает суммы расходов по часам дня.
+    Calculate expenses by hour for the given month and year.
 
-    :param data: DataFrame с данными транзакций
-    :param year: Год для фильтрации данных
-    :param month: Месяц для фильтрации данных
-    :return: JSON строка с суммами расходов по часам дня
+    Args:
+        data (pd.DataFrame): The transaction data.
+        year (int): The year for analysis.
+        month (int): The month for analysis.
+
+    Returns:
+        str: A JSON string with the total expenses by hour.
     """
-    data["Дата операции"] = pd.to_datetime(data["Дата операции"])
-    filtered_data = data[
-        (data["Дата операции"].dt.year == year)
-        & (data["Дата операции"].dt.month == month)
-        ]
+    logger.info(f"Calculating expenses by hour for {year}-{month:02d}")
 
-    expenses_by_hour = (
-        filtered_data.groupby(filtered_data["Дата операции"].dt.hour)["Сумма платежа"]
-        .sum()
-        .reset_index()
-    )
-    result = expenses_by_hour.set_index("Дата операции")["Сумма платежа"].to_dict()
+    filtered_data = data[(data['Дата операции'].dt.year == year) & (data['Дата операции'].dt.month == month)]
+    filtered_data['hour'] = filtered_data['Дата операции'].dt.hour
+    expenses_by_hour = filtered_data.groupby('hour')['Сумма платежа'].sum().to_dict()
+
+    result = {
+        "year": year,
+        "month": month,
+        "expenses_by_hour": expenses_by_hour
+    }
+
+    logger.info(f"Expenses by hour for {year}-{month:02d}: {expenses_by_hour}")
+
     return json.dumps(result, ensure_ascii=False, indent=4)
