@@ -28,7 +28,10 @@ def expenses_by_category(data: pd.DataFrame, category: str, date: str = None) ->
     logger.info(f"Calculating expenses for category '{category}' from {start_date.date()} to {end_date.date()}")
 
     filtered_data = data[
-        (data['Дата операции'] >= start_date) & (data['Дата операции'] <= end_date) & (data['Категория'] == category)]
+        (data['Дата операции'] >= start_date) &
+        (data['Дата операции'] <= end_date) &
+        (data['Категория'] == category)
+        ]
     total_expenses = filtered_data['Сумма платежа'].sum()
 
     result = {
@@ -58,7 +61,10 @@ def expenses_by_day_of_week(data: pd.DataFrame, year: int, month: int) -> str:
     """
     logger.info(f"Calculating expenses by day of the week for {year}-{month:02d}")
 
-    filtered_data = data[(data['Дата операции'].dt.year == year) & (data['Дата операции'].dt.month == month)]
+    filtered_data = data[
+        (data['Дата операции'].dt.year == year) &
+        (data['Дата операции'].dt.month == month)
+        ]
     filtered_data['day_of_week'] = filtered_data['Дата операции'].dt.dayofweek
     expenses_by_day = filtered_data.groupby('day_of_week')['Сумма платежа'].sum().to_dict()
 
@@ -87,7 +93,10 @@ def expenses_by_workday_weekend(data: pd.DataFrame, year: int, month: int) -> st
     """
     logger.info(f"Calculating expenses by workday and weekend for {year}-{month:02d}")
 
-    filtered_data = data[(data['Дата операции'].dt.year == year) & (data['Дата операции'].dt.month == month)]
+    filtered_data = data[
+        (data['Дата операции'].dt.year == year) &
+        (data['Дата операции'].dt.month == month)
+        ]
     filtered_data['is_workday'] = filtered_data['Дата операции'].dt.dayofweek < 5
     workday_expenses = filtered_data[filtered_data['is_workday']]['Сумма платежа'].sum()
     weekend_expenses = filtered_data[~filtered_data['is_workday']]['Сумма платежа'].sum()
@@ -100,12 +109,14 @@ def expenses_by_workday_weekend(data: pd.DataFrame, year: int, month: int) -> st
     }
 
     logger.info(
-        f"Expenses by workday and weekend for {year}-{month:02d}: workday={workday_expenses}, weekend={weekend_expenses}")
+        f"Expenses by workday and weekend for {year}-{month:02d}: "
+        f"workday={workday_expenses}, weekend={weekend_expenses}"
+    )
 
     return json.dumps(result, ensure_ascii=False, indent=4)
 
 
-def expenses_by_hour(data: pd.DataFrame, year: int, month: int) -> str:
+def expenses_by_hour_func(data: pd.DataFrame, year: int, month: int) -> str:
     """
     Calculate expenses by hour for the given month and year.
 
@@ -119,7 +130,10 @@ def expenses_by_hour(data: pd.DataFrame, year: int, month: int) -> str:
     """
     logger.info(f"Calculating expenses by hour for {year}-{month:02d}")
 
-    filtered_data = data[(data['Дата операции'].dt.year == year) & (data['Дата операции'].dt.month == month)]
+    filtered_data = data[
+        (data['Дата операции'].dt.year == year) &
+        (data['Дата операции'].dt.month == month)
+        ]
     filtered_data['hour'] = filtered_data['Дата операции'].dt.hour
     expenses_by_hour = filtered_data.groupby('hour')['Сумма платежа'].sum().to_dict()
 
