@@ -1,117 +1,80 @@
-# src/services.py
-
 import json
+import logging
+import pandas as pd
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-def analyze_cashback(data, year, month):
+def analyze_investment(data: pd.DataFrame, year: int, month: int) -> str:
     """
-    Analyze the most profitable cashback categories for a given month and year.
+    Analyze investment data and return total investment for the specified month and year.
 
     Args:
-        data (pd.DataFrame): DataFrame with transaction data.
-        year (int): Year for the analysis.
-        month (int): Month for the analysis.
+        data (pd.DataFrame): The transaction data.
+        year (int): The year for analysis.
+        month (int): The month for analysis.
 
     Returns:
-        str: JSON response with analysis results.
+        str: A JSON string with the total investment for the specified month and year.
     """
-    # ваш код
+    logger.info(f"Analyzing investment data for {year}-{month:02d}")
 
-
-def analyze_investment(data, year, month):
-    """
-    Calculate the total amount of money saved through investment rounding.
-
-    Args:
-        data (pd.DataFrame): DataFrame with transaction data.
-        year (int): Year for the analysis.
-        month (int): Month for the analysis.
-
-    Returns:
-        str: JSON response with total investment amount.
-    """
-    # ваш код
-
-
-def simple_search(data, query):
-    """
-    Perform a simple search for transactions containing the query in description or category.
-
-    Args:
-        data (pd.DataFrame): DataFrame with transaction data.
-        query (str): Search query.
-
-    Returns:
-        str: JSON response with search results.
-    """
-    # ваш код
-
-
-def phone_number_search(data, phone_number):
-    """
-    Search for transactions containing the specified phone number in the description.
-
-    Args:
-        data (pd.DataFrame): DataFrame with transaction data.
-        phone_number (str): Phone number to search for.
-
-    Returns:
-        str: JSON response with search results.
-    """
-    # ваш код
-
-
-def individual_transfers_search(data, individual_name):
-    """
-    Search for transactions that are transfers to individuals.
-
-    Args:
-        data (pd.DataFrame): DataFrame with transaction data.
-        individual_name (str): Name of the individual to search for.
-
-    Returns:
-        str: JSON response with search results.
-    """
-    # ваш код
-
-
-def analyze_cashback_categories(data, year, month):
-    filtered_data = data[(data['Дата операции'].dt.year == year) & (data['Дата операции'].dt.month == month)]
-    cashback_by_category = filtered_data.groupby('Категория')['Кэшбэк'].sum()
-    result = cashback_by_category.to_dict()
-    return json.dumps(result, ensure_ascii=False, indent=4)
-
-
-def analyze_investment(data, year, month):
     filtered_data = data[(data['Дата операции'].dt.year == year) & (data['Дата операции'].dt.month == month)]
     total_investment = filtered_data['Инвесткопилка'].sum()
+
     result = {
-        'year': year,
-        'month': month,
-        'total_investment': int(total_investment)  # Преобразуем в int для корректной сериализации
+        "year": year,
+        "month": month,
+        "total_investment": total_investment
     }
+
+    logger.info(f"Total investment for {year}-{month:02d}: {total_investment}")
+
     return json.dumps(result, ensure_ascii=False, indent=4)
 
 
-def simple_search(data, query):
-    filtered_data = data[data['Описание'].str.contains(query, na=False)]
-    result = filtered_data.to_dict(orient='records')
-    for record in result:
-        record['Дата операции'] = record['Дата операции'].strftime('%Y-%m-%d %H:%M:%S')  # Преобразуем в строку
+def simple_search(data: pd.DataFrame, query: str) -> str:
+    """
+    Perform a simple search in the transaction data.
+
+    Args:
+        data (pd.DataFrame): The transaction data.
+        query (str): The search query.
+
+    Returns:
+        str: A JSON string with the search results.
+    """
+    result = data[data['Описание'].str.contains(query, case=False, na=False)].to_dict(orient='records')
     return json.dumps(result, ensure_ascii=False, indent=4)
 
 
-def phone_number_search(data, phone_number):
-    filtered_data = data[data['Описание'].str.contains(phone_number, na=False)]
-    result = filtered_data.to_dict(orient='records')
-    for record in result:
-        record['Дата операции'] = record['Дата операции'].strftime('%Y-%m-%d %H:%M:%S')  # Преобразуем в строку
+def phone_number_search(data: pd.DataFrame, phone_number: str) -> str:
+    """
+    Perform a search for transactions containing the specified phone number.
+
+    Args:
+        data (pd.DataFrame): The transaction data.
+        phone_number (str): The phone number to search for.
+
+    Returns:
+        str: A JSON string with the search results.
+    """
+    result = data[data['Описание'].str.contains(phone_number, na=False)].to_dict(orient='records')
     return json.dumps(result, ensure_ascii=False, indent=4)
 
 
-def individual_transfers_search(data, individual_name):
-    filtered_data = data[data['Описание'].str.contains(individual_name, na=False)]
-    result = filtered_data.to_dict(orient='records')
-    for record in result:
-        record['Дата операции'] = record['Дата операции'].strftime('%Y-%m-%d %H:%M:%S')  # Преобразуем в строку
+def individual_transfers_search(data: pd.DataFrame, individual_name: str) -> str:
+    """
+    Perform a search for transfers to individuals.
+
+    Args:
+        data (pd.DataFrame): The transaction data.
+        individual_name (str): The name of the individual to search for.
+
+    Returns:
+        str: A JSON string with the search results.
+    """
+    result = data[data['Описание'].str.contains(individual_name, na=False)].to_dict(orient='records')
     return json.dumps(result, ensure_ascii=False, indent=4)
