@@ -1,7 +1,16 @@
 import json
-import pandas as pd
 from datetime import datetime
-from src.utils import get_greeting, get_cards_info, get_top_transactions, get_currency_rates, get_stock_prices, analyze_transactions
+
+import pandas as pd
+
+from src.utils import (
+    analyze_transactions,
+    get_cards_info,
+    get_currency_rates,
+    get_greeting,
+    get_stock_prices,
+    get_top_transactions,
+)
 
 
 def main_page(data: pd.DataFrame, current_time_str: str) -> str:

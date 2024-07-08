@@ -1,11 +1,16 @@
-# tests/test_services.py
-
-import pytest
-import pandas as pd
 import json
 from datetime import datetime
-from src.services import analyze_cashback_categories, analyze_investment, simple_search, phone_number_search, \
-    individual_transfers_search
+
+import pandas as pd
+import pytest
+
+from src.services import (
+    analyze_cashback_categories,
+    analyze_investment,
+    individual_transfers_search,
+    phone_number_search,
+    simple_search,
+)
 
 
 @pytest.fixture
