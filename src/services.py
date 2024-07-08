@@ -46,7 +46,12 @@ def simple_search(data: pd.DataFrame, query: str) -> str:
     Returns:
         str: A JSON string with the search results.
     """
+    logger.info(f"Performing simple search for query: {query}")
+
     result = data[data['Описание'].str.contains(query, case=False, na=False)].to_dict(orient='records')
+
+    logger.info(f"Found {len(result)} records matching query: {query}")
+
     return json.dumps(result, ensure_ascii=False, indent=4)
 
 
